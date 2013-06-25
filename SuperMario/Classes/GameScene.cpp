@@ -1,6 +1,8 @@
 #include "GameScene.h"
 #include "Player.h"
-
+#include "BaseEntity.h"
+#include "BarrierEntity.h"
+#include "CImageButton.h"
 
 
 
@@ -38,8 +40,27 @@ CCScene* CGameScene::scene()
 bool CGameScene::load( const char * tmxFile )
 {
 	m_pTileMap = CCTMXTiledMap::create(tmxFile);
-	//m_pBackground =  m_pTileMap->layerNamed("bakcground");
+	m_pBackground =  m_pTileMap->layerNamed("barrier");
 
+	// 根据群组名获得对象群组 ： 
+	CCTMXObjectGroup* group = m_pTileMap->objectGroupNamed("barrier"); 
+	// 获得群组里面的所有对象 
+	//CCArray* objects = group->getObjects();
+	int aa = m_pBackground->getChildrenCount();
+	CCSize size = m_pBackground->getLayerSize();
+	
+	for (int y = 0;y < size.height;y++)
+	{
+		for (int x = 0;x<size.width;x++)
+		{
+			if( 0 == m_pBackground->tileGIDAt(ccp(x,y)))
+				continue;
+			CBarrierEntity *pBarrier = new CBarrierEntity();
+			pBarrier->setPosition(ccp(x *32  + 16 ,(size.height - y ) * 32 - 16));
+			pBarrier->setContentSize(CCSizeMake(32,32));
+			m_pBox2dWorld->AddEntntyForSprite(pBarrier);
+		}
+	}
 	addChild(m_pTileMap,-1);
 	//= CCTMXTiledMap::initWithTMXFile(tmxFile); 
 	return true;
@@ -47,6 +68,12 @@ bool CGameScene::load( const char * tmxFile )
 
 bool CGameScene::init()
 {
+	b2Vec2 gravity = b2Vec2(0.0f, -10.0f);
+	m_pBox2dWorld = new CBox2dWorld(gravity);
+	m_pBox2dWorld->SetAllowSleeping(false);
+	m_pBox2dWorld->SetDebugDraw(&m_debugDraw);
+	m_pBox2dWorld->SetSize(12800,1880);
+
 	load("data/tiledmap/mary1.tmx");
 /*
 	CCControlStateNormal      
@@ -106,36 +133,82 @@ bool CGameScene::init()
 	CCMenuItemSprite *pLeftMenuItem = CCMenuItemSprite::create(pSpriteLeftNormal,pSpriteLeftSelected,pSpriteLeftNormal,this,menu_selector(CGameScene::onLeftMenuCallBack));
 	pLeftMenuItem->setPosition(CCPointMake(120,60));
 
-	frame =CCSpriteFrame::createWithTexture(texture,CCRectMake(240,120,120,120));
-	CCSprite* pSpriteRightNormal = CCSprite::createWithSpriteFrame(frame);
-	frame =CCSpriteFrame::createWithTexture(texture,CCRectMake(360,120,120,120));
-	CCSprite* pSpriteRightSelected = CCSprite::createWithSpriteFrame(frame);
-	CCMenuItemSprite *pRightMenuItem = CCMenuItemSprite::create(pSpriteRightNormal,pSpriteRightSelected,pSpriteRightNormal,this,menu_selector(CGameScene::onRightMenuCallBack));
-	pRightMenuItem->setPosition(CCPointMake(280,60));
-	pRightMenuItem->setRotation(270);
 
-	frame =CCSpriteFrame::createWithTexture(texture,CCRectMake(240,0,120,120));
-	CCSprite* pSpriteAttackNormal = CCSprite::createWithSpriteFrame(frame);
-	frame =CCSpriteFrame::createWithTexture(texture,CCRectMake(360,0,120,120));
-	CCSprite* pSpriteAttackSelected = CCSprite::createWithSpriteFrame(frame);
-	CCMenuItemSprite *pAttackMenuItem = CCMenuItemSprite::create(pSpriteAttackNormal,pSpriteAttackSelected,pSpriteAttackNormal,this,menu_selector(CGameScene::onAttackMenuCallBack));
-	pAttackMenuItem->setPosition(CCPointMake(480,60));
+	CCImageButton *pButtonLeft = CCImageButton::create(
+		CCSpriteFrame::createWithTexture(texture,CCRectMake(0,0,120,120)),
+		CCSpriteFrame::createWithTexture(texture,CCRectMake(120,0,120,120)),
+		NULL
+		);
+	pButtonLeft->setTag(0);
+	pButtonLeft->addTargetWithActionForControlEvents(
+		this,
+		cccontrol_selector(CGameScene::onButtonEvent),
+		CCControlEventTouchDown|CCControlEventTouchUpInside|CCControlEventTouchUpOutside
+		);
+	pButtonLeft->setPosition(CCPointMake(120,60));
+	addChild(pButtonLeft);
 
-	frame =CCSpriteFrame::createWithTexture(texture,CCRectMake(0,120,120,120));
-	CCSprite* pSpriteJumpNormal = CCSprite::createWithSpriteFrame(frame);
-	frame =CCSpriteFrame::createWithTexture(texture,CCRectMake(120,120,120,120));
-	CCSprite* pSpriteJumpSelected = CCSprite::createWithSpriteFrame(frame);
-	CCMenuItemSprite *pJumpMenuItem = CCMenuItemSprite::create(pSpriteJumpNormal,pSpriteJumpSelected,pSpriteJumpNormal,this,menu_selector(CGameScene::onJumpMenuCallBack));
-	pJumpMenuItem->setPosition(ccp(620,60));
+	CCImageButton *pButtonRight = CCImageButton::create(
+		CCSpriteFrame::createWithTexture(texture,CCRectMake(240,120,120,120)),
+		CCSpriteFrame::createWithTexture(texture,CCRectMake(360,120,120,120)),
+		NULL
+		);
+	pButtonRight->setTag(1);
+	pButtonRight->addTargetWithActionForControlEvents(
+		this,
+		cccontrol_selector(CGameScene::onButtonEvent),
+		CCControlEventTouchDown|CCControlEventTouchUpInside|CCControlEventTouchUpOutside
+		);
+	pButtonRight->GetSprite()->setRotation(270);
+	pButtonRight->setPosition(CCPointMake(280,60));
+	addChild(pButtonRight);
+	//pButtonRight->setRotationY(90);
 
-	CCMenu* pMenu = CCMenu::create(pLeftMenuItem,pRightMenuItem,pAttackMenuItem,pJumpMenuItem,NULL);
-	pMenu->setPosition(CCPointZero);
-	this->addChild(pMenu, 128);
+
+	CCImageButton *pButtonAttack = CCImageButton::create(
+		CCSpriteFrame::createWithTexture(texture,CCRectMake(240,0,120,120)),
+		CCSpriteFrame::createWithTexture(texture,CCRectMake(360,0,120,120)),
+		NULL
+		);
+	pButtonAttack->setTag(2);
+	pButtonAttack->addTargetWithActionForControlEvents(
+		this,
+		cccontrol_selector(CGameScene::onButtonEvent),
+		CCControlEventTouchDown
+		);
+	pButtonAttack->setPosition(CCPointMake(480,60));
+	addChild(pButtonAttack);
+
+	CCImageButton *pButtonJump = CCImageButton::create(
+		CCSpriteFrame::createWithTexture(texture,CCRectMake(0,120,120,120)),
+		CCSpriteFrame::createWithTexture(texture,CCRectMake(120,120,120,120)),
+		NULL
+		);
+	pButtonJump->setTag(3);
+	pButtonJump->addTargetWithActionForControlEvents(
+		this,
+		cccontrol_selector(CGameScene::onButtonEvent),
+		CCControlEventTouchDown
+		);
+	pButtonJump->setPosition(CCPointMake(620,60));
+	addChild(pButtonJump);
+
 
 	m_pPlayer = CPlayer::create();
-	m_pPlayer->setPosition(ccp(200,200));
+	m_pPlayer->setPosition(ccp(160,300));
+	m_pPlayer->setAnchorPoint(ccp(0.5,0.4));
 
 	this->addChild(m_pPlayer, 128);
+
+
+
+
+	m_pBox2dWorld->AddEntntyForSprite(m_pPlayer);
+
+	m_pBox2dContactListener = new Box2dContactListener();
+	m_pBox2dWorld->SetContactListener(m_pBox2dContactListener);
+
+	schedule(schedule_selector(CGameScene::Update),0.1f);
 
 	return true;
 }
@@ -144,31 +217,179 @@ bool CGameScene::init()
 void CGameScene::onLeftMenuCallBack(CCObject* pSender)
 {
 	CCLOG("Map X:%.1f Y:%.1f",m_pTileMap->getPositionX(),m_pTileMap->getPositionY());
-	if(m_pTileMap->getPositionX()<10)
-	m_pTileMap->setPositionX(m_pTileMap->getPositionX() + 10);
-	m_pPlayer->Run();
+	//if(m_pTileMap->getPositionX()<10)
+	//m_pTileMap->setPositionX(m_pTileMap->getPositionX() + 10);
+	m_pPlayer->RunLeft();
+	float x,y,z;
+	getCamera()->getCenterXYZ(&x,&y,&z);
+	//getCamera()->setEyeXYZ(0,0,50);
+	//getCamera()->setUpXYZ(-10,0,0);
 }
 void CGameScene::onRightMenuCallBack(CCObject* pSender)
 {
 	CCLOG("Map X:%.1f Y:%.1f",m_pTileMap->getPositionX(),m_pTileMap->getPositionY());
 	//if(m_pTileMap->getPositionX() < 12800)
-	if(m_pTileMap->getPositionX()>-12800)
-	m_pTileMap->setPositionX(m_pTileMap->getPositionX() - 10); 
+	//if(m_pTileMap->getPositionX()>-12800)
+	//m_pTileMap->setPositionX(m_pTileMap->getPositionX() - 10); 
+	m_pPlayer->RunRight();
+	//getCamera()->setUpXYZ(10,0,0);
 
 }
 void CGameScene::onAttackMenuCallBack(CCObject* pSender)
 {
-
+	this->setPositionX(this->getPositionX() - 50); 
+	((CCMenuItemSprite*)pSender)->setPositionX(((CCMenuItemSprite*)pSender)->getPositionX() + 50);
 }
 void CGameScene::onJumpMenuCallBack(CCObject* pSender)
 {
+	m_pPlayer->Jump();
+}
+
+void CGameScene::onButtonEvent(CCObject*pSender,CCControlEvent event)
+{
+	switch (((CCNode*)pSender)->getTag())
+	{
+	case 0:
+		if (event == CCControlEventTouchDown)
+			m_pPlayer->RunLeft();
+		break;;
+	case 1:
+		if (event == CCControlEventTouchDown)
+			m_pPlayer->RunRight();
+		break;
+	case 2:
+		break;
+	case 3:
+		if (event == CCControlEventTouchDown)
+			m_pPlayer->Jump();
+		break;
+	}
+
 
 }
 
-void CGameScene::onButtonEvent(CCObject*pSender,CCEvent event)
+void CGameScene::addBoxBodyForSprite( CCSprite* pObject )
 {
 
+}
 
+void CGameScene::Update( float dt )
+{
+	m_pBox2dWorld->Step(dt,10,10);
+	uint32 flags = 0;
+	flags += m_pBox2dWorld->m_settings.drawShapes            * b2Draw::e_shapeBit;
+	flags += m_pBox2dWorld->m_settings.drawJoints            * b2Draw::e_jointBit;
+	flags += m_pBox2dWorld->m_settings.drawAABBs            * b2Draw::e_aabbBit;
+	flags += m_pBox2dWorld->m_settings.drawPairs            * b2Draw::e_pairBit;
+	flags += m_pBox2dWorld->m_settings.drawCOMs                * b2Draw::e_centerOfMassBit;
+	m_debugDraw.SetFlags(flags);
+	//m_pBox2dWorld->DrawDebugData();
+	std::list<Box2dContact>::iterator pos;
+	std::list<b2Body *> toDestroy;
+	for(pos=m_pBox2dContactListener->contactList.begin();pos!=m_pBox2dContactListener->contactList.end();pos++)
+	{
+		Box2dContact &contact=*pos;
+		b2Body *bodyA=contact.fixtureA->GetBody(),*bodyB=contact.fixtureB->GetBody();
+		CBaseEntity *pEntityA = (CBaseEntity*)(bodyA->GetUserData());
+		CBaseEntity *pEntityB = (CBaseEntity*)(bodyB->GetUserData());
+		if(pEntityA->GetEntityType() == emEntiryType_Player || pEntityB->GetEntityType() == emEntiryType_Player)
+		{
+			CBaseEntity *pContactTarget = (pEntityA->GetEntityType() == emEntiryType_Player) ? pEntityB : pEntityA;
+			if(abs(pContactTarget->getPositionY() - m_pPlayer->getPositionY()) < m_pPlayer->getContentSize().height / 2)
+			{
+				
+				//CCLOG("#Contact Object X: %0.1f  Y:%0.1f",pContactTarget->getPositionX(),pContactTarget->getPositionY());
+			}
+		}
+		
+
+
+		/*
+		for(int i=0;i<4;i++)
+		{
+			if(contact.fixtureA==blockFixture<i>&&contact.fixtureB==ballFixture)
+			{
+				toDestroy.push_back(bodyA);
+				CCLOG("ok");
+			} else if(contact.fixtureB==blockFixture<i>&&contact.fixtureA==ballFixture)
+			{
+				CCLOG("ok");
+				toDestroy.push_back(bodyB);
+			}
+		}*/
+
+	}
+	std::list<b2Body*>::iterator it = toDestroy.begin();
+	while(it != toDestroy.end())
+	{
+		m_pBox2dWorld->DestroyBody(*it);
+		it++;
+	}
+	b2Body *pBody = m_pBox2dWorld->GetBodyList();
+	CBaseEntity *pEntity = NULL;// (CBaseEntity*)(bodyA->GetUserData());
+	static CCSize winsize = CCDirector::sharedDirector()->getWinSize();
+	CCPoint newPosiiton  = m_pTileMap->getPosition();
+	CCPoint oldPosition = m_pTileMap->getPosition();
+	bool bMoveMap = false;
+	while (pBody)
+	{
+		pEntity = (CBaseEntity*)(pBody->GetUserData());
+		if(pEntity->GetEntityType() & emEntiryType_Animal)
+		{
+			//CCLOG("Body awake:%d, X:%.3f  Y:%.3f  LVX:%.3f  LVY:%.3f ",pEntity->GetB2Body()->IsActive(), pBody->GetPosition().x * PTM_RATIO,pBody->GetPosition().y * PTM_RATIO,
+				//pEntity->GetB2Body()->GetLinearVelocity().x,pEntity->GetB2Body()->GetLinearVelocity().y);
+			if(pBody->GetPosition().x * PTM_RATIO >= winsize.width / 2)
+			{
+				bMoveMap = true;
+				newPosiiton.x = winsize.width / 2 - pBody->GetPosition().x *  PTM_RATIO;
+				//m_pTileMap->setPositionX(winsize.width / 2 - pBody->GetPosition().x *  PTM_RATIO );
+			}else
+			{
+				pEntity->setPositionX(pBody->GetPosition().x * PTM_RATIO );
+				newPosiiton.x = 0;
+			}
+
+			if(pBody->GetPosition().y * PTM_RATIO >= winsize.height /1.3f)
+			{
+				bMoveMap = true;
+				newPosiiton.y = winsize.height / 1.3f - pBody->GetPosition().y *PTM_RATIO;
+				//m_pTileMap->setPositionY(winsize.height / 1.3f - pBody->GetPosition().y *PTM_RATIO);
+			}else
+			{
+				pEntity->setPositionY(pBody->GetPosition().y * PTM_RATIO);
+				newPosiiton.y = 0;
+			}
+			//CCLOG("Player X:%.1f  Y:%.1f",pBody->GetPosition().x * PTM_RATIO,pBody->GetPosition().y *PTM_RATIO);
+		}
+		pBody = pBody->GetNext();
+	}
+	if(newPosiiton.x != oldPosition.x ||  newPosiiton.y != oldPosition.y)
+		m_pTileMap->setPosition(newPosiiton);
+	
+}
+
+void CGameScene::CenterView()
+{
+	CCSize winsize = CCDirector::sharedDirector()->getWinSize();
+	CCPoint pos = m_pPlayer->getPosition();
+	//if(pos - winsize.width /2 > 0)
+		//m_pTileMap->setPositionX(pos.x - winsize.width /2);
+
+}
+
+void CGameScene::draw()
+{
+		CCLayer::draw();
+
+		ccGLEnableVertexAttribs( kCCVertexAttribFlag_Position );
+
+		kmGLPushMatrix();
+
+		m_pBox2dWorld->DrawDebugData();
+
+		kmGLPopMatrix();
+
+		CHECK_GL_ERROR_DEBUG();
 }
 
 

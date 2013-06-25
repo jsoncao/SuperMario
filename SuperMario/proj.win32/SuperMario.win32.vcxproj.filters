@@ -1,17 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="source">
-      <UniqueIdentifier>{447c5c72-278b-470c-984a-48f756addb52}</UniqueIdentifier>
-      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm</Extensions>
-    </Filter>
-    <Filter Include="include">
-      <UniqueIdentifier>{6a4a4f91-263c-4f24-ac01-18609305a6a5}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc</Extensions>
-    </Filter>
     <Filter Include="resource">
       <UniqueIdentifier>{f308bfbb-7651-4192-8e0f-8e8ac67a0a94}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;png;manifest</Extensions>
+    </Filter>
+    <Filter Include="Classes">
+      <UniqueIdentifier>{4d7c2677-b722-466a-b273-a66cfcb7fa04}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -31,52 +26,82 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="main.h">
-      <Filter>include</Filter>
-    </ClInclude>
+    <ClInclude Include="..\Classes\Resource.h" />
     <ClInclude Include="..\Classes\AppDelegate.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Classes\Language.h">
-      <Filter>include</Filter>
+      <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\CSVFile.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Classes\HomeLayer.h">
-      <Filter>include</Filter>
+      <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\GameScene.h">
-      <Filter>include</Filter>
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\HomeLayer.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Language.h">
+      <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="..\Classes\Player.h">
-      <Filter>include</Filter>
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h" />
+    <ClInclude Include="..\Classes\GLES-Render.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\AnimalEntity.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\BarrierEntity.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\BaseEntity.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Box2dContact.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Box2dWorld.h">
+      <Filter>Classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\Classes\AppDelegate.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\Language.cpp">
-      <Filter>source</Filter>
+      <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\CSVFile.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\HomeLayer.cpp">
-      <Filter>source</Filter>
+      <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\GameScene.cpp">
-      <Filter>source</Filter>
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\HomeLayer.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Language.cpp">
+      <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\Player.cpp">
-      <Filter>source</Filter>
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\Classes\GLES-Render.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\AnimalEntity.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\BarrierEntity.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\BaseEntity.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Box2dContact.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Box2dWorld.cpp">
+      <Filter>Classes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
