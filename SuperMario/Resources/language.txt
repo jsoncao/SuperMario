@@ -1,0 +1,8 @@
+key	value
+NewGame	新游戏
+ContinueGame	继续游戏
+Setting	设置
+Help	关于帮助
+About	关于我们
+Title	SuperMario
+Version	Version:1.0.0
